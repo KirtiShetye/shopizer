@@ -1,19 +1,23 @@
 #!/bin/bash
 set -e
 
-# Start the application in background
-java -jar /app/shopizer.jar &
+# Start the application in background and capture logs
+java -jar /app/shopizer.jar > /tmp/shopizer.log 2>&1 &
 APP_PID=$!
 
-# Wait for application to be ready
+# Wait for application to fully start
 echo "Waiting for Shopizer to start..."
-for i in {1..120}; do
-    if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
-        echo "Shopizer is ready!"
-        sleep 10  # Extra wait for full initialization
+tail -f /tmp/shopizer.log &
+TAIL_PID=$!
+
+for i in {1..240}; do
+    if grep -q "Started ShopApplication" /tmp/shopizer.log; then
+        echo "Shopizer has fully started!"
+        kill $TAIL_PID 2>/dev/null || true
+        sleep 5  # Extra wait
         break
     fi
-    sleep 3
+    sleep 1
 done
 
 # Add sample products

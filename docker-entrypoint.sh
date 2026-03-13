@@ -7,12 +7,13 @@ APP_PID=$!
 
 # Wait for application to be ready
 echo "Waiting for Shopizer to start..."
-for i in {1..60}; do
+for i in {1..120}; do
     if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
         echo "Shopizer is ready!"
+        sleep 10  # Extra wait for full initialization
         break
     fi
-    sleep 2
+    sleep 3
 done
 
 # Add sample products

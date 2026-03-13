@@ -177,4 +177,16 @@ public interface ShoppingCartFacade {
 	 */
 	ReadableShoppingCart readableCart(ShoppingCart cart, MerchantStore store, Language language);
 
+	/**
+	 * Save cart item for later - moves item from cart to wishlist
+	 * @param cartCode
+	 * @param productId
+	 * @param customerId
+	 * @param store
+	 * @param language
+	 * @return
+	 * @throws Exception
+	 */
+	ReadableShoppingCart saveForLater(String cartCode, Long productId, Long customerId, MerchantStore store, Language language) throws Exception;
+
 }

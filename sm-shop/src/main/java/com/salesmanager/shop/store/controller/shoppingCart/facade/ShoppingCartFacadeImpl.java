@@ -89,6 +89,9 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ProductAttributeService productAttributeService;
 
 	@Inject
+	private com.salesmanager.core.business.services.wishlist.WishlistService wishlistService;
+
+	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
@@ -1159,6 +1162,39 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		return readableShoppingCartMapper.convert(cart, store, language);
 
+	}
+
+	@Override
+	public ReadableShoppingCart saveForLater(String cartCode, Long productId, Long customerId, MerchantStore store, Language language) throws Exception {
+		Validate.notNull(customerId, "Customer ID is required");
+		Validate.notNull(productId, "Product ID is required");
+		
+		ShoppingCart cart = shoppingCartService.getByCode(cartCode, store);
+		if (cart == null) {
+			throw new ResourceNotFoundException("Cart not found with code: " + cartCode);
+		}
+		
+		// Find item SKU to remove from cart
+		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemToRemove = cart.getLineItems().stream()
+			.filter(item -> item.getProduct().getId().equals(productId))
+			.findFirst()
+			.orElseThrow(() -> new ResourceNotFoundException("Product not found in cart"));
+		
+		String productSku = itemToRemove.getProduct().getSku();
+		
+		// Use existing removeShoppingCartItem method which properly handles deletion
+		removeShoppingCartItem(cartCode, productSku, store, language, false);
+		
+		// Add to wishlist
+		try {
+			wishlistService.addProduct(customerId, productId);
+		} catch (ServiceException e) {
+			LOG.error("Error adding product to wishlist", e);
+		}
+		
+		// Get updated cart
+		cart = shoppingCartService.getByCode(cartCode, store);
+		return readableShoppingCartMapper.convert(cart, store, language);
 	}
 
 }

@@ -77,10 +77,15 @@ public class WishlistServiceImpl extends SalesManagerEntityServiceImpl<Long, Wis
     public void removeProduct(Long customerId, Long productId) {
         Wishlist wishlist = getByCustomerId(customerId);
         if (wishlist != null) {
-            wishlist.getItems().removeIf(item -> 
-                item.getProduct().getId().equals(productId)
-            );
-            wishlistRepository.save(wishlist);
+            WishlistItem itemToRemove = wishlist.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+            
+            if (itemToRemove != null) {
+                wishlist.removeItem(itemToRemove);
+                wishlistRepository.save(wishlist);
+            }
         }
     }
 

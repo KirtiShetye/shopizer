@@ -1,5 +1,6 @@
 package com.salesmanager.shop.model.wishlist;
 
+import com.salesmanager.shop.model.catalog.product.ReadableProduct;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -26,6 +27,9 @@ public class ReadableWishlist implements Serializable {
 
     @ApiModelProperty(value = "List of product IDs in wishlist")
     private List<Long> productIds = new ArrayList<>();
+
+    @ApiModelProperty(value = "List of products in wishlist")
+    private List<ReadableProduct> products = new ArrayList<>();
 
     @ApiModelProperty(value = "Number of items in wishlist")
     private int itemCount;
@@ -63,6 +67,14 @@ public class ReadableWishlist implements Serializable {
 
     public void setProductIds(List<Long> productIds) {
         this.productIds = productIds;
+    }
+
+    public List<ReadableProduct> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ReadableProduct> products) {
+        this.products = products;
     }
 
     public int getItemCount() {

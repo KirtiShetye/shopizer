@@ -300,4 +300,24 @@ public class ShoppingCartApi {
 		}
 		return new ResponseEntity<>(updatedCart, HttpStatus.NO_CONTENT);
 	}
+
+	@PostMapping(value = "/cart/{code}/product/{productId}/save-for-later")
+	@ApiOperation(httpMethod = "POST", value = "Save cart item for later - moves item to wishlist", produces = "application/json", response = ReadableShoppingCart.class)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	public ResponseEntity<ReadableShoppingCart> saveForLater(
+			@PathVariable String code,
+			@PathVariable Long productId,
+			@RequestParam Long customerId,
+			@ApiIgnore MerchantStore merchantStore,
+			@ApiIgnore Language language) {
+		try {
+			ReadableShoppingCart cart = shoppingCartFacade.saveForLater(code, productId, customerId, merchantStore, language);
+			return new ResponseEntity<>(cart, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ServiceRuntimeException(e);
+		}
+	}
 }

@@ -40,6 +40,20 @@ jobs:
         name: shopizer-backend-${{ github.sha }}
         path: sm-shop/target/shopizer.jar
         retention-days: 30
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ghcr.io/${{ github.repository_owner }}/shopizer-backend:latest \
+                     -t ghcr.io/${{ github.repository_owner }}/shopizer-backend:${{ github.sha }} .
+        docker push ghcr.io/${{ github.repository_owner }}/shopizer-backend:latest
+        docker push ghcr.io/${{ github.repository_owner }}/shopizer-backend:${{ github.sha }}
         
     - name: Build Summary
       if: always()
